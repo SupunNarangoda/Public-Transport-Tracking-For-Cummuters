@@ -32,6 +32,7 @@ const Train = () => {
   const [feedbackValue, setFeedbackValue] = useState("");
   const mapRef = useRef(null);
 
+
   const calculateDistance = useCallback((lat1, lon1, lat2, lon2) => {
     const R = 6371; // Radius of the earth in km
     const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -67,6 +68,7 @@ const Train = () => {
         location.latitude,
         location.longitude
       );
+
       const etaHours = calculateETA(distance);
       const etaMinutes = Math.round(etaHours * 60); 
   
@@ -74,6 +76,7 @@ const Train = () => {
       console.log(
         `Location ${location.id}: Distance = ${distance} km, ETA = ${etaMinutes} minutes`
       );
+
     });
   
     setEtaData(newEtaData);
@@ -85,6 +88,7 @@ const Train = () => {
       console.log("Permission to access location was denied");
       return;
     }
+
 
     let location = await Location.getCurrentPositionAsync({});
     setCurrentLocation(location.coords);
@@ -152,7 +156,7 @@ const Train = () => {
 
   const getDayType = () => {
     const day = new Date().getDay();
-    return day === 0 || day === 6 ? 0 : 1; //Selects 0 for weekend, 1 for weekday
+    return day === 0  ||  day === 6 ? 0 : 1; //Selects 0 for weekend, 1 for weekday
   };
 
   const getCurrentTime = () => {
@@ -175,18 +179,16 @@ const Train = () => {
       Route_176: routeNumber === "176" ? 1 : 0,
     };
 
-    try {
-      const response = await fetch("http://192.168.1.2:5000/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(inputData),
-      });
+   
+    const response = await fetch("http://192.168.1.2:5000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(inputData),
+    });
 
-      const data = await response.json();
-      setPredictedCrowdLevel(data.crowd_level);
-    } catch (error) {
-      console.error("Error fetching prediction:", error);
-    }
+    const data = await response.json();
+    setPredictedCrowdLevel(data.crowd_level);
+   
   };
 
   const handleFeedbackSubmit = async () => {
@@ -211,6 +213,7 @@ const Train = () => {
       console.error("Error submitting feedback:", error);
       Alert.alert("Error", "Failed to submit feedback.");
     }
+
   };
 
   useEffect(() => {
@@ -234,6 +237,7 @@ const Train = () => {
   }, [routeNumber, locations]);
 
   return (
+    
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* Top container for input and button */}
       <View className="absolute top-9 left-2 right-2 p-3 bg-white rounded-lg shadow-md z-20 w-[95%] items-center">
@@ -268,8 +272,7 @@ const Train = () => {
               description="This is your current location"
             />
           )}
-          {locations
-            .filter((location) => location.routeNumber === routeNumber)
+          {locations.filter((location) => location.routeNumber === routeNumber)
             .map((location) => (
               <Marker
                 key={location.id}
@@ -278,10 +281,9 @@ const Train = () => {
                   longitude: location.longitude,
                 }}
                 title={`Location ${location.id}`}
-                description={`ETA: ${
-                  etaData[location.id] !== undefined
-                    ? `${etaData[location.id]} min`
-                    : "Calculating..."
+                description={`ETA: ${etaData[location.id] !== undefined
+                    ? `${etaData[location.id]} mins`
+                    : "Calculating"
                 }`}
               />
             ))}

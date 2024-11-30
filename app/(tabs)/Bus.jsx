@@ -22,6 +22,7 @@ const Bus = () => {
   const [feedbackValue, setFeedbackValue] = useState("");
   const mapRef = useRef(null);
 
+  
   const calculateDistance = useCallback((lat1, lon1, lat2, lon2) => {
     const R = 6371; // Radius of the earth in km
     const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -49,6 +50,7 @@ const Bus = () => {
     const filteredLocations = locations.filter( // Filter locations based on the entered route number
       (location) => location.routeNumber === routeNumber
     );
+
   
     filteredLocations.forEach((location) => {
       const distance = calculateDistance(
@@ -75,6 +77,7 @@ const Bus = () => {
       console.log("Permission to access location was denied");
       return;
     }
+
 
     let location = await Location.getCurrentPositionAsync({});
     setCurrentLocation(location.coords);
@@ -137,6 +140,7 @@ const Bus = () => {
       } else {
         console.warn("No location data available.");
       }
+
     });
   };
 
@@ -165,20 +169,20 @@ const Bus = () => {
       Route_176: routeNumber === "176" ? 1 : 0,
     };
 
-    try {
+    
       // const response = await fetch("http://192.168.1.2:5000/predict", {
-        const response = await fetch("http://192.168.0.6:5000/predict", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(inputData),
-      });
+    // const response = await fetch("http://192.168.0.6:5000/predict", {
+    const response = await fetch("http://192.168.8.122:5000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(inputData),
+    });
 
-      const data = await response.json();
-      setPredictedCrowdLevel(data.crowd_level);
-    } catch (error) {
-      console.error("Error fetching prediction:", error);
-    }
+    const data = await response.json();
+    setPredictedCrowdLevel(data.crowd_level);
+    
   };
+
 
   const handleFeedbackSubmit = async () => {
     if (!feedbackValue || !routeNumber) {
@@ -204,6 +208,7 @@ const Bus = () => {
     }
   };
 
+
   useEffect(() => {
     getLocation();
     fetchAndUpdateLocation();
@@ -225,6 +230,7 @@ const Bus = () => {
   }, [routeNumber, locations]);
 
 return (
+
   <SafeAreaView className="flex-1 bg-gray-100">
     {/* Top container for input and button */}
     <View className="absolute top-9 left-2 right-2 p-3 bg-white rounded-lg shadow-md z-20 w-[95%] items-center">
@@ -243,6 +249,7 @@ return (
       </TouchableOpacity>
     </View>
 
+
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <MapView
         className="flex-1 h-[300px]"
@@ -259,8 +266,7 @@ return (
             description="This is your current location"
           />
         )}
-        {locations
-          .filter((location) => location.routeNumber === routeNumber)
+        {locations.filter((location) => location.routeNumber === routeNumber)
           .map((location) => (
             <Marker
               key={location.id}
@@ -271,8 +277,8 @@ return (
               title={`Location ${location.id}`}
               description={`ETA: ${
                 etaData[location.id] !== undefined
-                  ? `${etaData[location.id]} min`
-                  : "Calculating..."
+                  ? `${etaData[location.id]} mins`
+                  : "Calculating"
               }`}
             />
           ))}
